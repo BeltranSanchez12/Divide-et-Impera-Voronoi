@@ -17,7 +17,7 @@ Implementación de algoritmos fundamentales de **Geometría Computacional** con 
 <br>
 
 <p align="center">
-  <a href="https://github.com/BeltranSanchez12/Divide-et-Impera-Voronoi/InteractivoVoronoi.html">
+  <a href="https://htmlpreview.github.io/?https://github.com/BeltranSanchez12/Divide-et-Impera-Voronoi/blob/main/InteractivoVoronoi.html">
     <img src="https://img.shields.io/badge/🚀_DEMO_INTERACTIVA-Diagrama_de_Voronoi-blue?style=for-the-badge&logoColor=white" alt="Demo Interactiva" height="60">
   </a>
 </p>
