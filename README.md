@@ -17,7 +17,7 @@ Implementación de algoritmos fundamentales de **Geometría Computacional** con 
 <br>
 
 <p align="center">
-  <a href="https://htmlpreview.github.io/?https://github.com/BeltranSanchez12/Divide-et-Impera-Voronoi/blob/main/InteractivoVoronoi.html">
+  <a href="https://beltransanchez12.github.io/Divide-et-Impera-Voronoi/InteractivoVoronoi.html">
     <img src="https://img.shields.io/badge/🚀_DEMO_INTERACTIVA-Diagrama_de_Voronoi-blue?style=for-the-badge&logoColor=white" alt="Demo Interactiva" height="60">
   </a>
 </p>
@@ -180,7 +180,7 @@ Proyecto académico - (2024)
 ---
 
 <p align="center">
-  <a href="https://tu-usuario.github.io/nombre-repo/InteractivoVoronoi.html">
+  <a href="https://beltransanchez12.github.io/Divide-et-Impera-Voronoi/InteractivoVoronoi.html">
     <img src="https://img.shields.io/badge/▶️_Probar_Demo_Interactiva-1565C0?style=for-the-badge" alt="Demo" height="50">
   </a>
 </p>
