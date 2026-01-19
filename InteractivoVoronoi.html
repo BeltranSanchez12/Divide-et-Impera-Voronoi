@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://sagecell.sagemath.org/static/jquery.min.js"></script>
+    <script src="https://sagecell.sagemath.org/embedded_sagecell.js"></script>
+    <script>
+    $(function () {
+    // Convertimos *cada* div de clase 'compute' en una celda de Sage
+    sagecell.makeSagecell({inputLocation: 'div.compute',
+    						template:       sagecell.templates.minimal,
+                           evalButtonText: 'Lanzar applet interactiva ahora'});
+});
+// <button onclick="mostrarApplet()">Lanzar applet interactiva ahora</button>
+    </script>
+
+    <title>Diagrama de Voronoi de una nube de puntos - Método Divide y vencerás</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #E3F2FD; /* Fondo principal */
+            color: #212121; /* Texto negro */
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Euclidean_Voronoi_diagram.svg/1200px-Euclidean_Voronoi_diagram.svg.png'); /* Imagen de fondo */
+            background-size: cover; /* La imagen cubre todo el fondo */
+            background-position: center; /* Centrar la imagen */
+            background-attachment: fixed; /* La imagen permanece fija al hacer scroll */
+        }
+    
+        header {
+            background-color: #1565C0; /* Azul oscuro */
+            color: #FFFFFF; /* Texto blanco para contraste */
+            padding: 15px 0;
+            text-align: center;
+        }
+    
+        header h1 {
+            margin: 0;
+        }
+    
+        nav {
+            text-align: center;
+            margin: 10px 0;
+        }
+    
+        nav a {
+            color: #1565C0; /* Azul oscuro */
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+        }
+    
+        nav a:hover {
+            text-decoration: underline;
+            color: #1E88E5; /* Azul intenso */
+        }
+    
+        section {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #BBDEFB; /* Azul intermedio */
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+    
+        section h2 {
+            color: #1565C0; /* Azul oscuro */
+        }
+    
+        ul li {
+            margin: 10px 0;
+        }
+    
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #1E88E5; /* Azul intenso */       
+            color: #FFFFFF; /* Texto blanco */
+        }
+    
+        button {
+            background-color: #1565C0; /* Azul oscuro */
+            color: #FFFFFF; /* Texto blanco */
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    
+        button:hover {
+            background-color: #1E88E5; /* Azul más brillante */
+        }
+    </style>
+    
+    
+    
+<body>
+    <header>
+        <h1>Diagrama de Voronoi</h1>
+        <p>Método Divide y Vencerás - Proyecto Interactivo</p>
+        <p>Por: <strong> Beltrán Sánchez</strong></p>
+    </header>
+
+    <nav>
+        <a href="#introduccion">Introducción</a>
+        <a href="#instrucciones">Instrucciones</a>
+        <a href="#applet">Lanzar Applet</a>
+        <a href="#discusion">Discusión</a>
+    </nav>
+
+    <section id="introduccion">
+        <h2>Introducción</h2>
+        <p>
+            El diagrama de Voronoi es una poderosa herramienta matemática y computacional que permite dividir un espacio en 
+            regiones asociadas a un conjunto de puntos generadores. Cada región incluye todos los puntos del espacio que 
+            están más cerca de un punto generador específico que de cualquier otro. Este concepto tiene aplicaciones en 
+            diversos campos como la geografía, la biología, la inteligencia artificial y los videojuegos.
+        </p>
+        <p>
+            En este proyecto, el <strong>Diagrama de Voronoi</strong> mediante el método de <strong>divide y vencerás</strong> 
+            se basa en construir el diagrama paso a paso, dividiendo los las nubes de puntos en 2 según su posición. 
+            Posteriormente pasamos a la unión, trazando una cicatriz que divide exitosamente ambas regiones. En este proyecto
+            vamos a observar el paso mas delicado del algoritmo, la unión de 2 nubes de puntos con sus respectivas regiones 
+            de Voronoi. 
+        </p>
+    </section>
+
+    <section id="instrucciones">
+        <h2>Instrucciones</h2>
+        <ol>
+            <li><strong>Selecciona el número de puntos:</strong> En la parte superior de la pantalla, encontrarás un control deslizante (slider) donde podrás elegir cuántos puntos deseas generar para el cálculo del <strong>Diagrama de Voronoi</strong>. Se puede ajustar el número de puntos entre 10 y 50.</li>
+            <li><strong>La distribución de los puntos:</strong>
+                <ul>
+                    <li><strong>Normal:</strong> Los puntos se generan siguiendo una distribución normal con media 0 y desviación estándar 1, lo que resulta en una concentración de puntos alrededor del centro.</li>
+                </ul>
+            </li>
+            <li><strong>Visualiza los pasos del algoritmo Diagrama de Voronoi:</strong> Usa el control deslizante adicional para navegar por los pasos del algoritmo.</li>
+        </ol>
+        
+    </section>
+
+    <section id="applet">
+        <h2>Programa Interactivo - SageMath</h2>
+        <p>
+            El siguiente botón permite acceder al applet interactivo y explorar el algoritmo Diagrama de Voronoi en acción.
+            <strong>Se recomienda hacer "click" en lugar de arrastrar el slider para evitar realizar el diagrama de todos los puntos intermedios.</strong>
+        </p>
+        
+        <div class="compute">
+            <script type="text/x-sage">
+
+#!/usr/bin/env python
+# coding: utf-8
+
+# FUNCIONES
+
+valor_cero = 1e-9
+
+def dist(p,q):
+    return sqrt((p[0]-q[0])**2 + (p[1]-q[1])**2)
+
+def puntoMedio(p,q):
+        return ([(p[0]+q[0])/2,(p[1]+q[1])/2])
+
+def areaSignada(a,b,c):
+    return((b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]))/2
+
+def interseccionRectas(r,s):
+    x1=r[1][1]-r[0][1] # Diferencias en y
+    y1=r[0][0]-r[1][0] # Diferencias en x
+    
+    x2=s[1][1]-s[0][1] # Diferencias en y
+    y2=s[0][0]-s[1][0] # Diferencias en x
+    if x1*y2-x2*y1==0:
+        print("\n* Rectas paralelas. ", end="")
+        return None
+    else:
+        z1=r[0][0]*r[1][1]-r[0][1]*r[1][0]
+        z2=s[0][0]*s[1][1]-s[0][1]*s[1][0]
+        x=(z1*y2-z2*y1)/(x1*y2-x2*y1)
+        y=(x1*z2-x2*z1)/(x1*y2-x2*y1)
+        return [x,y]
+    
+def enSegmento(p,s):
+    if areaSignada(p,s[0],s[1])!=0: # compruebo si el punto está en la 'dirección' del segmento
+        return false
+    return float(dist(p,s[0]))+float(dist(p,s[1]))==float(dist(s[0],s[1]))  # Comprobar si está dentro del segmento en sí
+
+def testInterseccionSegmentos(p,q):
+    if (areaSignada(p[0],p[1],q[0])*areaSignada(p[0],p[1],q[1])<0 and areaSignada(q[0],q[1],p[0])*areaSignada(q[0],q[1],p[1])<0):
+        return True
+    else:
+        if enSegmento(p[0],q) or enSegmento(p[1],q) or enSegmento(q[0],p) or enSegmento(q[1],p):
+            return False
+        else:
+            return False
+
+def Xmax(p):
+    return(max(p))
+
+def Xmin(p):
+    return min(p)
+
+def Ymax(p):
+    return max(p,key=lambda x:[x[1],x[0]]) #Si dos x[1] coinciden se mira x[0]
+
+def Ymin(p):
+    return min(p,key=lambda x:[x[1],x[0]])  
+    
+def recortePoligonoSemiplano(P,s):
+    if(len(P)==0):
+        return []
+    if(len(P)==1):
+        if areaSignada(s[0],s[1],P[0])>=0:
+            return([P[0]])
+        else:
+            return []
+    lista=[]
+    if areaSignada(s[0],s[1],P[0])>=0:
+        dentro=true
+        lista.append(P[0])
+    else:
+        dentro=false
+    
+    for i in range(1,len(P)):
+        if areaSignada(s[0],s[1],P[i])>=-valor_cero and dentro:
+            lista.append(P[i])
+        elif areaSignada(s[0],s[1],P[i])>=0 and not dentro:
+            lista.append(interseccionRectas([P[i-1],P[i]],s))
+            lista.append(P[i])
+            dentro=true
+        elif areaSignada(s[0],s[1],P[i])<valor_cero and dentro:
+            lista.append(interseccionRectas([P[i-1],P[i]],s))
+            dentro=false          
+    if(areaSignada(s[0],s[1],P[-1])*areaSignada(s[0],s[1],P[0]))<0:
+        lista.append(interseccionRectas([P[-1],P[0]],s))       
+    return lista
+
+def recortePoligonoSemiplano_derecha(P, s):
+    if len(P) == 0:
+        return []
+    
+    if len(P) == 1:
+        if areaSignada(s[0], s[1], P[0]) <= 0:
+            return [P[0]]
+        else:
+            return []
+    
+    lista = []
+    
+    # Comprobar el primer punto
+    if areaSignada(s[0], s[1], P[0]) <= 0:  
+        dentro = True
+        lista.append(P[0])
+    else:
+        dentro = False
+
+    # Recorrer el polígono
+    for i in range(1, len(P)):
+        if areaSignada(s[0], s[1], P[i]) <= -0 and dentro:  
+            lista.append(P[i])
+        elif areaSignada(s[0], s[1], P[i]) <= 0 and not dentro: 
+            lista.append(interseccionRectas([P[i-1], P[i]], s))
+            lista.append(P[i])
+            dentro = True
+        elif areaSignada(s[0], s[1], P[i]) > 0 and dentro: 
+            lista.append(interseccionRectas([P[i-1], P[i]], s))
+            dentro = False
+    
+    # Comprobar la intersección entre el último y el primer punto
+    if areaSignada(s[0], s[1], P[-1]) * areaSignada(s[0], s[1], P[0]) > 0:
+        lista.append(interseccionRectas([P[-1], P[0]], s))
+    
+    return lista
+
+def interseccion_recta_poligono(polygon, recta):
+    intersecciones = {}
+#     puntos_interseccion = []
+#     aristas_interseccion = []
+    # Recorrer los lados del polígono
+    for i in range(len(polygon)):
+        p1 = polygon[i]
+        p2 = polygon[(i + 1) % len(polygon)]
+        
+        if testInterseccionSegmentos([p1,p2], recta) == True:
+            punto_interseccion = interseccionRectas([p1, p2], [recta[0], recta[1]])
+#             puntos_interseccion.append(punto_interseccion)
+#             aristas_interseccion.append([p1,p2])
+            intersecciones[(punto_interseccion[0], punto_interseccion[1])] = [p1,p2]
+            
+
+#     if puntos_interseccion == []:
+#         return intersecciones
+    return intersecciones
+
+def puntos_a_lo_largo_de_recta(punto_inicio, punto_final, iteraciones):
+    """
+    Genera puntos a lo largo de una recta definida por dos puntos extremos.
+
+    :param punto_inicio: Tupla (x1, y1) que representa el primer punto de la recta.
+    :param punto_final: Tupla (x2, y2) que representa el segundo punto de la recta.
+    :param iteraciones: Número de puntos a generar a lo largo de la recta (incluyendo los extremos).
+    :return: Lista de puntos generados (cada punto es una tupla (x, y)).
+    """
+    # Desempaquetar las coordenadas de los puntos
+    x1, y1 = punto_inicio
+    x2, y2 = punto_final
+    
+    # Generar una secuencia de puntos interpolados entre los puntos extremos
+    puntos = [[x1 + (x2 - x1) * i / (iteraciones - 1), y1 + (y2 - y1) * i / (iteraciones - 1)] for i in range(iteraciones)]
+    
+    return puntos
+
+def distancia(p1, p2):
+    return sqrt((p2[0] - p1[0])^2 + (p2[1] - p1[1])^2)
+
+# Función para encontrar el punto más cercano de la nube
+def punto_mas_cercano(nube_puntos, punto_dado):
+    # Inicializamos con el primer punto de la nube
+    punto_cercano = nube_puntos[0]
+    dist_minima = distancia(punto_dado, punto_cercano)
+    
+    # Iteramos sobre todos los puntos de la nube
+    for punto in nube_puntos[1:]:
+        dist = distancia(punto_dado, punto)
+        if dist < dist_minima:
+            punto_cercano = punto
+            dist_minima = dist
+    
+    return punto_cercano
+
+def encontrar_vecino(punto_corte, rect, PUNTOS, q, ):        
+    for g in range(len(PUNTOS)):
+        if PUNTOS[g] != q:
+            media = mediatriz(PUNTOS[g], q)
+            media = redefinir_mediatriz(media, rect)
+            if enSegmentoIII(punto_corte, media) == True: # CAMBIAR EL CORTE DEL CUAL HAY QUE HALLAR EL VECINO
+#                 print('HEY',PUNTOS[g])
+                return PUNTOS[g]
+
+def limpiar_diccionarios(pc1, pc2):
+    ilegales = []
+
+    for punto, arista in pc1.items():
+        if round(arista[0][0], 8) == round(arista[1][0], 8) or round(arista[0][1], 8)== round(arista[1][1], 8):
+            ilegales.append(punto)
+    
+    for punto, arista in pc2.items():
+        if round(arista[0][0], 8) == round(arista[1][0], 8) or round(arista[0][1], 8)== round(arista[1][1], 8):
+            ilegales.append(punto)
+    
+    for p in ilegales:
+        if p in pc1.keys():
+            del pc1[p]
+        if p in pc2.keys():
+            del pc2[p]
+
+    return pc1 , pc2
+
+def enSegmentoIII(p, s):
+    valor_cero = 1e-3
+    epsilon = 1e-3    
+
+    if abs(areaSignada(p, s[0], s[1])) > valor_cero:
+        return False
+
+    suma_distancias = dist(p, s[0]) + dist(p, s[1])
+    distancia_segmento = dist(s[0], s[1])
+    return abs(suma_distancias - distancia_segmento) <= epsilon
+
+def calcular_rectangulo(P):
+    h = Xmax(P)[0] - Xmin(P)[0]
+    v = Ymax(P)[1] - Ymin(P)[1]
+    Rect = [[Xmin(P)[0]-h,Ymin(P)[1]-v],[Xmax(P)[0]+h,Ymin(P)[1]-v],[Xmax(P)[0]+h,Ymax(P)[1]+v],[Xmin(P)[0]-h,Ymax(P)[1]+v]]
+    return Rect
+
+def redefinir_mediatriz(mediatriz, rect):
+    puntos = []
+    for i in range(len(rect)):
+        itx = interseccionRectas(mediatriz, [rect[i], rect[(i+1)%len(rect)]])
+        if round(itx[0], 5) > round(Xmax(rect)[0], 5) or round(itx[1], 5) > round(Ymax(rect)[1], 5) or round(itx[0], 5) < round(Xmin(rect)[0], 5) or round(itx[1], 5) < round(Ymin(rect)[1], 5):
+            pass
+        else:
+            puntos.append(itx)
+    return puntos
+
+def decidir_cambio(pc1, pc2, limite):
+    puntos = list(pc1.keys()) + list(pc2.keys())
+    
+        
+    punto_corte_y = sorted(puntos, key=lambda punto: punto[1])
+    
+    for k in punto_corte_y:
+#         print(k)
+        if round(k[1], 6) > round(limite[1],6):
+#             print('valido', k)
+            punto_corte_y_min = k
+
+            if punto_corte_y_min in pc1.keys():
+                return 'p', punto_corte_y_min
+            if punto_corte_y_min in pc2.keys():
+                return 'q', punto_corte_y_min
+
+    return None, None
+
+def mediatriz(a,b):
+    
+    if a == b:
+        return
+    ab = [b[0]-a[0],b[1]-a[1]]
+    abo = [-ab[1],ab[0]]
+    m = puntoMedio(a,b)
+    
+    return [m, [m[0]+abo[0],m[1]+abo[1]]]
+
+def mediatriz(a, b, escala=5):
+    if a == b:
+        return None  # Retorna None si los puntos son iguales.
+    
+    ab = [b[0] - a[0], b[1] - a[1]]
+    abo = [-ab[1], ab[0]]  # Vector perpendicular a ab.
+    abo = [escala * coord for coord in abo]  # Escala el vector perpendicular.
+    m = puntoMedio(a, b)  # Calcula el punto medio.
+    
+    return [m, [m[0] + abo[0], m[1] + abo[1]]]  # Retorna el punto medio y el punto extendido.
+
+def regionVoronoi(P,i):
+    
+    h = Xmax(P)[0] - Xmin(P)[0]
+    v = Ymax(P)[1] - Ymin(P)[1]
+    
+    R = [[Xmin(P)[0]-h,Ymin(P)[1]-v],[Xmax(P)[0]+h,Ymin(P)[1]-v],[Xmax(P)[0]+h,Ymax(P)[1]+v],[Xmin(P)[0]-h,Ymax(P)[1]+v]]
+    
+    for j in P:
+#         print(j, i)
+        if j != i:
+            R = recortePoligonoSemiplano(R,mediatriz(i,j))
+    return R 
+
+def Voronoi(P):
+    return [regionVoronoi(P,i) for i in P]
+
+def dibujaVoronoi(P,color = 'blue', ax = 0):
+    
+    V = Voronoi(P)
+    
+    return sum(line(i + [i[0]],aspect_ratio=1,axes = ax,alpha=0.2, color = color) for i in V) + point(P,size=7, color = color)
+
+def voronoi_main(P, interaciones = 20):
+
+    valor_cero = 1e-9
+    P1 = []
+    P2 = []
+    minimo = Xmin(P)[0]
+    maximo = Xmax(P)[0]
+    limite = [0,-50]
+    cicatriz = []
+
+    dict_cambios = {}
+
+    h = Xmax(P)[0] - Xmin(P)[0]
+    v = Ymax(P)[1] - Ymin(P)[1]
+    rect = [[Xmin(P)[0]-h,Ymin(P)[1]-v],[Xmax(P)[0]+h,Ymin(P)[1]-v],[Xmax(P)[0]+h,Ymax(P)[1]+v],[Xmin(P)[0]-h,Ymax(P)[1]+v]]
+
+    # OTRA MANERA DE INICIALIZAR EL ALGORITMO CON LOS PUNTOS p Y q INICIALES
+
+    divisoria = [[(minimo + maximo)/2, Ymin(P)[1]], [(minimo + maximo)/2, Ymax(P)[1]]]
+
+    for i in P:
+        if areaSignada(divisoria[0], divisoria[1], i) > valor_cero:
+            P1.append(i)
+        else:
+            P2.append(i)
+
+    tramos = puntos_a_lo_largo_de_recta(divisoria[0], divisoria[1], 12)
+
+    punto = tramos[0]
+
+    # ----------------------------------------------------------------------
+
+    
+    p = Ymin(P1)
+    q = Ymin(P2)
+
+#     p = punto_mas_cercano(P1, punto)
+#     q = punto_mas_cercano(P2, punto)
+
+    med = mediatriz(p,q)
+    med = redefinir_mediatriz(med, rect)
+    cicatriz.append(med[0])
+
+    dict_cambios[('p',(p[0], p[1]))] = recortePoligonoSemiplano(regionVoronoi(P1, p), med)
+    dict_cambios[('q',(q[0], q[1]))] = recortePoligonoSemiplano(regionVoronoi(P2, q), (med[1], med[0])) # derecha
+
+    # while True:
+    for k in range(interaciones):  
+        # Puntos inicales
+        g = point(P) + line(rect + [rect[0]])
+        g += point(P1, color = 'blue')
+        g += point(P2, color = 'red')
+        g += point(p, color = 'green', size = 50)
+        g += point(q, color = 'green', size = 50)
+
+        # Mediatriz y su representación
+        med = mediatriz(p,q)
+        med = redefinir_mediatriz(med, rect)
+        g += line(med, color = 'orange')
+
+
+        # Actualización de las regiones de Voronoi de los puntos 'p' y 'q'
+        if ('p',(p[0], p[1])) in dict_cambios.keys():
+    #         print(p)
+            region = dict_cambios[('p',(p[0], p[1]))]
+            dict_cambios[('p',(p[0], p[1]))] = recortePoligonoSemiplano(region, med)
+        else:
+            dict_cambios[('p',(p[0], p[1]))] = recortePoligonoSemiplano(regionVoronoi(P1, p), med)
+        if ('q',(q[0], q[1])) in dict_cambios.keys():
+    #         print(q)
+            region = dict_cambios[('q',(q[0], q[1]))]
+            dict_cambios[('q',(q[0], q[1]))] = recortePoligonoSemiplano(region, (med[1], med[0])) # derecha
+        else:
+            dict_cambios[('q',(q[0], q[1]))] = recortePoligonoSemiplano(regionVoronoi(P2, q), (med[1], med[0])) # derecha
+
+
+        # Regiones de Voronoi de los 'p' y 'q' actuales 
+        g += polygon(regionVoronoi(P1, p), color = 'blue', alpha = 0.3)
+        g += polygon(regionVoronoi(P2, q), color = 'red', alpha = 0.3)
+
+        # Hallamos puntos de intersección con las respectivas regiones
+        pc1 = interseccion_recta_poligono(regionVoronoi(P1, p), med)
+        pc2 = interseccion_recta_poligono(regionVoronoi(P2, q), med)
+
+        # Eliminamos cortes ilegales que representan bordes
+        pc1, pc2 = limpiar_diccionarios(pc1,pc2)
+
+        # Cortes de mediatriz y sus representaciones
+    #     print('pc1', pc1)
+    #     print('pc2', pc2)
+    #     for i, j in pc1.items():
+    #         g += point(i, color='black')
+    #         g += line(j, color='black')
+
+
+
+    #     for i, j in pc2.items():
+    #         g += point(i, color='black')
+    #         g += line(j, color='black')
+
+        # Elegimos el punto de corte con menor ordenada pero mayor que la del corte anterior
+        cambio, punto_corte = decidir_cambio(pc1,pc2, limite)
+    #     print(punto_corte)
+
+    #     print(f'Iteración: {k+1}: Cambiamos el punto {cambio}.')
+
+        # Comprobar si el algoritmo ha terminado:
+
+        if punto_corte == None or k + 1 == interaciones: 
+            
+            cicatriz.append(med[1])
+            
+            # g = Representación con pasos
+            # g_final = Representación final de cicatriz 
+            g += line(cicatriz, color = 'green', thickness = 2)
+
+            if k + 1 == interaciones:
+                g.show(figsize = (6,7))
+                return
+
+            # Representación final
+            g_final = point(P1, color = 'blue', size = 25)
+            g_final += point(P2, color = 'red', size = 25)
+            g_final += line(cicatriz, color = 'green', thickness = 3)
+
+            g_final.show(figsize = (7,7))
+            
+            # Última representación con las regiones actualizadas
+            g2 = point(P) + line(rect + [rect[0]])
+            g2 += point(P1, color = 'blue')
+            g2 += point(P2, color = 'red')
+            g2 += line(cicatriz, color = 'green', thickness = 2)
+
+
+            # Resultados de las Regiones de Voronoi cortadas por la mediatriz
+            for clave, valor in dict_cambios.items():
+                if clave[0] == 'p':
+                    g2 += point(clave[1], color = 'orange')
+                    g2 += polygon(valor, color = 'blue', alpha = 0.3)
+                    g2 += line(valor + [valor[0]], color = 'blue', alpha = 0.7)
+                if clave[0] == 'q':
+                    g2 += point(clave[1], color = 'orange')
+                    g2 += polygon(valor, color = 'red', alpha = 0.3)
+                    g2 += line(valor + [valor[0]], color = 'red', alpha = 0.7)
+
+            g2.show(figsize = (7,7))
+            return k + 1
+
+        # Actualizamos vecinos y formamos cicatriz con el punto de corte actual
+        limite = punto_corte
+        cicatriz.append(punto_corte)
+        if cambio == 'p':
+            p = encontrar_vecino(punto_corte,rect,P1,p)
+        if cambio == 'q':
+            q = encontrar_vecino(punto_corte,rect,P2,q)
+
+        g += point(punto_corte, color = 'green')
+        g += line(cicatriz, color = 'green', thickness = 2)
+
+
+    #     g.show(figsize = (7,7))
+
+@interact
+def pedirPuntos(p=slider(10,50,1,1,label='Puntos:')):
+    P=[[gauss(1,2),gauss(2,1)] for i in range(p)]
+    k = voronoi_main(P)
+    @interact
+    def pedirPaso(paso=slider(1,k,1,0, label='Paso:')):
+        pasos = voronoi_main(P, paso)
+    ##
+    
+##
+
+
+
+
+
+
+            </script>
+        </div>
+    </section>
+
+
+    <style>
+        .imagenes {
+            display: flex;
+            justify-content: center;
+            gap: 20px; /* Espacio entre las imágenes */
+            margin-top: 10px; /* Separación superior respecto al texto */
+        }
+    
+        .imagenes img {
+            width: 45%; /* Tamaño proporcional al contenedor */
+            height: auto; /* Mantiene la proporción */
+            border-radius: 8px; /* Bordes redondeados */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra suave */
+        }
+    
+        .imagen {
+            display: block;
+            margin: 55px ; /* Centra horizontalmente y agrega margen superior/inferior */
+            width: 80%; /* Más grande que las imágenes en pareja */
+            height: auto;
+            border-radius: 8px; /* Bordes redondeados */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Sombra más destacada */
+        }
+
+        #discusion {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #BBDEFB;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+    
+        #discusion h2 {
+            color: #1565C0;
+        }
+    
+        ul li {
+            margin: 10px 0;
+        }
+
+    </style>
+
+
+    <section id="discusion">
+        <h2>Discusión y Aplicaciones Reales</h2>
+        <p>
+            El algoritmo para generar el diagrama de Voronoi mediante el método de divide y vencerás tiene aplicaciones en diversas áreas como:
+        </p>
+        <ul>
+            <li>
+                <strong>Geografía y Cartografía:</strong> División de territorios en función de la proximidad a puntos clave, como centros de población o servicios.
+                <div class="imagenes">
+                    <img src="https://datascience.recursos.uoc.edu/wp-content/uploads/2019/11/image006-1024x640.png" alt="Mapa de ejemplo 1">
+                    <img src="https://datascience.recursos.uoc.edu/wp-content/uploads/2019/11/image005-1024x753.png" alt="Mapa de ejemplo 2">
+                </div>
+            </li>
+            <li>
+                <strong>Biología:</strong> Modelado de la distribución espacial de células o colonias en tejidos y ecosistemas.
+                <div class="imagenes">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcROpYxVNORMbNMt3veOrrbLAkqEZ8aOHThzQNfzC_SeYn6F9HH7ygWENbGZ-wjOdfeH_xQ&usqp=CAU" alt="Mapa de ejemplo 1">
+                    <img src="https://i.pinimg.com/474x/28/18/bd/2818bd30b020586752213fa10e377d0a.jpg" alt="Mapa de ejemplo 2">
+                </div>
+            </li>
+            <li>
+                <strong>Telecomunicaciones:</strong> Diseño de redes celulares mediante la asignación óptima de torres de transmisión.
+                <div class="imagenes">
+                    <img src="https://ztfnews.wordpress.com/wp-content/uploads/2014/05/1399651176-0.jpg" alt="Mapa de ejemplo 1">
+                    <img src="https://www.researchgate.net/profile/Pedro-Alvarez-Alvarez/publication/304988668/figure/fig11/AS:614368676966402@1523488315551/Figura-33-Triangulacion-de-Delaunay-trazo-continuo-y-poligonos-de-Voronoi-trazo-de.png" alt="Mapa de ejemplo 2">
+                </div>
+            </li>
+            <li>
+                <strong>Inteligencia Artificial:</strong> Segmentación de espacios en sistemas de navegación autónoma y análisis de patrones: Modelado de terrenos mediante regiones de Voronoi.
+
+                <img src="https://naukas.com/fx/uploads/2011/12/voronoi_14.jpg" alt="Modelado de terrenos mediante regiones de Voronoi." class="imagen">
+
+            </li>
+        </ul>
+        <p>
+            Aunque el enfoque divide y vencerás es eficiente y tiene una complejidad  (teórica) de \(O(n \log n)\), también puede enfrentar desafíos al manejar conjuntos de puntos con alta densidad o patrones altamente irregulares, lo que puede requerir optimizaciones adicionales en su implementación.
+        </p>
+    </section>
+    
+
+    <footer>
+        <p>Modificado por última vez: 30 de diciembre de 2024.</p>
+        <p>&copy; 2024 Proyecto Diagrama de Voronoi - Divide y Vencerás</p>
+    </footer>
+</body>
+</html>
